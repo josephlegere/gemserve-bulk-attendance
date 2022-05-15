@@ -1,3 +1,8 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+@keyframes spinLoad {
+    from {transform:rotateY(360deg);}
+    to {transform:rotateY(0deg);}
+}
