@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import { navigate } from 'gatsby';
 
-import { Box, Button, CircularProgress, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, FormControlLabel, FormGroup, Switch, TextField, Typography } from '@mui/material';
+import { Box, Button, CircularProgress, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, TextField, Typography } from '@mui/material';
+import { DataGrid } from '@mui/x-data-grid';
 
 export default function Login() {
 
