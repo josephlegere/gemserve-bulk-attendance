@@ -1,17 +1,14 @@
-import React, { useState } from 'react';
+import React, { forwardRef, useEffect, useState } from 'react';
 
-import { Button, CircularProgress, Chip, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, FormControlLabel, FormGroup, Grid, TextField, Typography } from '@mui/material';
+import { AppBar, Button, CircularProgress, Chip, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, FormControlLabel, FormGroup, Grid, IconButton, Slide, TextField, Toolbar, Typography } from '@mui/material';
 import { DataGrid, GridToolbar } from '@mui/x-data-grid';
+
+import AttendAddEntry from '../components/AttendAddEntry';
 
 export default function Dashboard() {
 
     const [attendRows, setAttendRows] = useState(30);
-
-    const [attendance, setAttendance] = useState([
-        // { id: 1, employee: 'Joseph Legere', date: '2022-05-15', AM_in: '05:30:00', AM_out: '12:00:00', PM_in: '16:00:00', PM_out: '17:30:00', OT_in: '', OT_out: '', OT_hours: 0, locations: '', status: 0 },
-        { id: 1, employeeid: 1001, employee: 'Joseph Legere', date: '2022-05-15', timings_day: ['5:30am - 12:00pm', '5:30am - 12:00pm'], timings_noon: ['4:30pm - 5:30pm'], timings_ot: [], hours_ot: 0, locations: '', status: 'REG', entered: '2022-05-16' },
-        { id: 2, employeeid: 1001, employee: 'Joseph Legere', date: '2022-05-15', timings_day: ['5:30am - 12:00pm'], timings_noon: ['4:30pm - 5:30pm'], timings_ot: [], hours_ot: 0, locations: '', status: 'REG', entered: '2022-05-16' },
-    ]);
+    const [attendance, setAttendance] = useState([]);
 
     const attendColumns = [
         { type: 'number', field: 'employeeid', headerName: 'Emp ID' },
@@ -35,18 +32,29 @@ export default function Dashboard() {
         { field: 'status', headerName: 'Status' },
     ];
 
+    useEffect(() => {
+        setAttendance([
+            // { id: 1, employee: 'Joseph Legere', date: '2022-05-15', AM_in: '05:30:00', AM_out: '12:00:00', PM_in: '16:00:00', PM_out: '17:30:00', OT_in: '', OT_out: '', OT_hours: 0, locations: '', status: 0 },
+            { id: 1, employeeid: 1001, employee: 'Joseph Legere', date: '2022-05-15', timings_day: ['5:30am - 12:00pm', '5:30am - 12:00pm'], timings_noon: ['4:30pm - 5:30pm'], timings_ot: [], hours_ot: 0, locations: '', status: 'REG', entered: '2022-05-16' },
+            { id: 2, employeeid: 1001, employee: 'Joseph Legere', date: '2022-05-15', timings_day: ['5:30am - 12:00pm'], timings_noon: ['4:30pm - 5:30pm'], timings_ot: [], hours_ot: 0, locations: '', status: 'REG', entered: '2022-05-16' },
+        ]);
+    }, []);
+
     return (
         <>
             <Grid container justifyContent="center" spacing={2} style={{ marginTop: 10, marginBottom: 10 }}>
                 <Grid item xs={10}>
-                    <Typography
-                        variant="h6"
-                        noWrap
-                        component="div"
-                        sx={{ mr: 2, mb: 2 }}
-                    >
-                        Gemserve Bulk Attendance
-                    </Typography>
+                    <div className="flex flex-row justify-between items-center mb-2">
+                        <Typography
+                            variant="h6"
+                            noWrap
+                            component="div"
+                            // sx={{ mr: 2, mb: 2 }}
+                        >
+                            Gemserve Bulk Attendance
+                        </Typography>
+                        <AttendAddEntry />
+                    </div>
                     <DataGrid
                         rows={attendance}
                         columns={attendColumns}
