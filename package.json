@@ -22,11 +22,13 @@
     "@mui/material": "^5.7.0",
     "@mui/x-data-grid": "^5.11.0",
     "@mui/x-date-pickers": "^5.0.0-alpha.3",
+    "axios": "^0.27.2",
     "gatsby": "^4.14.0",
     "gatsby-plugin-create-client-paths": "^4.9.0",
     "moment": "^2.29.3",
     "react": "^17.0.1",
-    "react-dom": "^17.0.1"
+    "react-dom": "^17.0.1",
+    "react-query": "^3.39.0"
   },
   "devDependencies": {
     "autoprefixer": "^10.4.7",

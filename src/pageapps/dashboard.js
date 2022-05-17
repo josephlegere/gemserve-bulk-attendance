@@ -2,10 +2,15 @@ import React, { forwardRef, useEffect, useState } from 'react';
 
 import { AppBar, Button, CircularProgress, Chip, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, FormControlLabel, FormGroup, Grid, IconButton, Slide, TextField, Toolbar, Typography } from '@mui/material';
 import { DataGrid, GridToolbar } from '@mui/x-data-grid';
+import moment from 'moment';
+import { useQuery } from 'react-query';
 
+import { get as getAttendance } from '../store/attendance';
 import AttendAddEntry from '../components/AttendAddEntry';
 
 export default function Dashboard() {
+
+    const { isLoading, error, data } = useQuery('getAttendance', getAttendance);
 
     const [attendRows, setAttendRows] = useState(30);
     const [attendance, setAttendance] = useState([]);
@@ -25,20 +30,39 @@ export default function Dashboard() {
                 </div>
             )
         },
-        { field: 'timings_noon', headerName: 'Afternoon', minWidth: 170 },
-        { field: 'timings_ot', headerName: 'Overtime', minWidth: 170 },
+        {
+            field: 'timings_noon', headerName: 'Afternoon',
+            minWidth: 170,
+            renderCell: params => (
+                <div className="flex flex-col">
+                    {
+                        params.row.timings_noon.map((elem, key) => <Chip label={elem} key={key} className="mb-1" />)
+                    }
+                </div>
+            )
+        },
+        {
+            field: 'timings_ot', headerName: 'OT Timings',
+            minWidth: 170,
+            renderCell: params => (
+                <div className="flex flex-col">
+                    {
+                        params.row.timings_ot.map((elem, key) => <Chip label={elem} key={key} className="mb-1" />)
+                    }
+                </div>
+            )
+        },
         { type: 'number', field: 'hours_ot', headerName: 'OT Hours' },
         { field: 'locations', headerName: 'Locations' },
         { field: 'status', headerName: 'Status' },
     ];
 
     useEffect(() => {
-        setAttendance([
-            // { id: 1, employee: 'Joseph Legere', date: '2022-05-15', AM_in: '05:30:00', AM_out: '12:00:00', PM_in: '16:00:00', PM_out: '17:30:00', OT_in: '', OT_out: '', OT_hours: 0, locations: '', status: 0 },
-            { id: 1, employeeid: 1001, employee: 'Joseph Legere', date: '2022-05-15', timings_day: ['5:30am - 12:00pm', '5:30am - 12:00pm'], timings_noon: ['4:30pm - 5:30pm'], timings_ot: [], hours_ot: 0, locations: '', status: 'REG', entered: '2022-05-16' },
-            { id: 2, employeeid: 1001, employee: 'Joseph Legere', date: '2022-05-15', timings_day: ['5:30am - 12:00pm'], timings_noon: ['4:30pm - 5:30pm'], timings_ot: [], hours_ot: 0, locations: '', status: 'REG', entered: '2022-05-16' },
-        ]);
-    }, []);
+        if (data) {
+            setAttendance(data);
+        }
+
+    }, [data]);
 
     return (
         <>

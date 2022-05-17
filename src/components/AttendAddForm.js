@@ -1,9 +1,12 @@
 import React, { useEffect, useState } from 'react'
 
-import { Box, Button, Container, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, Fab, IconButton, Menu, MenuItem, TextField, Typography } from '@mui/material';
+import { Box, Button, Container, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, Fab, FormControl, IconButton, InputLabel, Menu, MenuItem, Select, TextField, Typography } from '@mui/material';
 import { Add as AddIcon, Close as CloseIcon } from '@mui/icons-material';
 import { DatePicker, TimePicker } from '@mui/x-date-pickers';
 import moment from 'moment';
+import { useQuery } from 'react-query';
+
+import { get as getEmployees } from '../store/employees';
 
 const AttendItemSet = (props) => {
 
@@ -54,9 +57,12 @@ export default function AttendAddForm(props) {
 
     const { submitAdd } = props;
 
+    const { isLoading, error, data } = useQuery('getEmployees', getEmployees)
+
     const [toggleForm, setToggleForm] = useState(false);
+    const [employeeData, setEmployeeData] = useState([]);
     const [date, setDate] = useState(moment());
-    const [name, setName] = useState('');
+    const [employee, setEmployee] = useState({});
     const [timings, setTimings] = useState([
         { in: '05:30:00', out: '12:00:00', location: '', tags: ['Morning'] },
         { in: '16:00:00', out: '17:30:00', location: '', tags: ['Afternoon'] }
@@ -67,7 +73,7 @@ export default function AttendAddForm(props) {
     const closeForm = () => {
         setToggleForm(false);
         setDate(moment());
-        setName('');
+        setEmployee({});
         setTimings([
             { in: '05:30:00', out: '12:00:00', location: '', tags: ['Morning'] },
             { in: '16:00:00', out: '17:30:00', location: '', tags: ['Afternoon'] }
@@ -98,17 +104,18 @@ export default function AttendAddForm(props) {
         const locations = timings.map(({ location }) => location).filter(e => e !== '').join(', ');
 
         if (submitAdd) submitAdd({
-            employeeid: 1001,
-            employee: name,
+            employeeid: employee.empcode,
+            employee: employee.empname,
             date: date.format('YYYY-MM-DD'),
             timings_raw: timings,
+            timings_store: timings.reduce((accum, curr) => [...accum, { input: `${date.format('YYYY-MM-DD')} ${curr.in}`, place: curr.location, type: 0 }, { input: `${date.format('YYYY-MM-DD')} ${curr.out}`, place: curr.location, type: 1 }], []),
             timings_day,
             timings_noon,
             timings_ot: timings_ot.time,
             hours_ot: timings_ot.hrs > requiredHours ? timings_ot.hrs - requiredHours : 0,
             locations,
             status: (timings_ot.hrs > requiredHours ? 'OT' : timings_ot.hrs < requiredHours ? 'INC' : 'REG'),
-            entered: moment().format('YYYY-MM-DD')
+            created: moment()
         });
 
         closeForm();
@@ -168,6 +175,13 @@ export default function AttendAddForm(props) {
         });
     }
 
+    useEffect(() => {
+        console.log(data);
+        if (data) {
+            setEmployeeData(data);
+        }
+    }, [data]);
+
     return (
         <>
             <Fab color="primary" aria-label="add" onClick={() => setToggleForm(true)} style={{ position: 'absolute', bottom: 10, right: 10 }}>
@@ -192,15 +206,25 @@ export default function AttendAddForm(props) {
                             setDate(newValue);
                         }}
                         renderInput={(params) => <TextField {...params} size="small" className="my-2" />}
+                        maxDate={moment().add(1, 'd')}
+                        minDate={moment().subtract(2, 'M')}
                     />
-                    <TextField
-                        id="outlined-name"
-                        className="my-2"
-                        label="EmployeeName"
-                        size="small"
-                        value={name}
-                        onChange={(e) => setName(e.target.value)}
-                    />
+                    <FormControl fullWidth size="small" className="my-2">
+                        <InputLabel id="employees-select-label">Employee</InputLabel>
+                        <Select
+                            labelId="employees-select-label"
+                            id="employees-select"
+                            value={employee}
+                            label="Employee"
+                            onChange={e => setEmployee(e.target.value)}
+                        >
+                            {
+                                employeeData.map((emp, key) => (
+                                    <MenuItem value={emp} key={key}>{emp.empname}</MenuItem>
+                                ))
+                            }
+                        </Select>
+                    </FormControl>
 
                     <div className="flex flex-row justify-between items-start mb-2">
                         <Typography

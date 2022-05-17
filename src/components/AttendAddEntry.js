@@ -3,7 +3,9 @@ import React, { forwardRef, useEffect, useState } from 'react';
 import { AppBar, Button, CircularProgress, Chip, Dialog, Grid, IconButton, Slide, Toolbar, Typography } from '@mui/material';
 import { Close as CloseIcon } from '@mui/icons-material';
 import { DataGrid, GridToolbar } from '@mui/x-data-grid';
+import { useMutation, useQueryClient } from 'react-query';
 
+import { insert } from '../store/attendance';
 import AttendAddForm from './AttendAddForm';
 
 const Transition = forwardRef(function Transition(props, ref) {
@@ -11,6 +13,15 @@ const Transition = forwardRef(function Transition(props, ref) {
 });
 
 export default function AttendAddEntry() {
+
+    const queryClient = useQueryClient()
+    const addAttendance = useMutation(insert);
+// , {
+//         // onSuccess: data => {
+//         //     console.log('mutated', data);
+//         //     queryClient.setQueryData('insertAttend', data[0]);
+//         // }
+//     }
 
     const [attendRows, setAttendRows] = useState(30);
     const [attendance, setAttendance] = useState([]);
@@ -65,7 +76,11 @@ export default function AttendAddEntry() {
         setAttendance([]);
     }
 
-    const submitForm = () => {
+    const submitForm = async () => {
+        const _attendance = await addAttendance.mutateAsync(attendance);
+        queryClient.setQueriesData('getAttendance', _attendance);
+        console.log(_attendance);
+
         closeForm();
     }
 
