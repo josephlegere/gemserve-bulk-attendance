@@ -11,7 +11,7 @@ export default function Dashboard() {
     const [attendance, setAttendance] = useState([]);
 
     const attendColumns = [
-        { type: 'number', field: 'employeeid', headerName: 'Emp ID' },
+        { field: 'employeeid', headerName: 'Emp ID' },
         { field: 'employee', headerName: 'Employee', minWidth: 170 },
         { type: 'date', field: 'date', headerName: 'Date' },
         {

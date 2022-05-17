@@ -17,11 +17,11 @@ export default function AttendAddEntry() {
     const [toggleForm, setToggleForm] = useState(false);
 
     const attendColumns = [
-        { type: 'number', field: 'employeeid', headerName: 'Emp ID' },
+        { field: 'employeeid', headerName: 'Emp ID' },
         { field: 'employee', headerName: 'Employee', minWidth: 170 },
         { type: 'date', field: 'date', headerName: 'Date' },
         {
-            field: 'timingsDay', headerName: 'Morning',
+            field: 'timings_day', headerName: 'Morning',
             minWidth: 170,
             renderCell: params => (
                 <div className="flex flex-col">
@@ -31,8 +31,30 @@ export default function AttendAddEntry() {
                 </div>
             )
         },
-        { field: 'timings_noon', headerName: 'Afternoon', minWidth: 170 },
-        { field: 'timings_ot', headerName: 'Overtime', minWidth: 170 },
+        {
+            field: 'timings_noon', headerName: 'Afternoon',
+            minWidth: 170,
+            renderCell: params => (
+                <div className="flex flex-col">
+                    {
+                        params.row.timings_noon.map((elem, key) => <Chip label={elem} key={key} className="mb-1" />)
+                    }
+                </div>
+            )
+        },
+        {
+            field: 'timings_ot', headerName: 'OT Timings',
+            minWidth: 170,
+            renderCell: params => (
+                <div className="flex flex-col">
+                    {
+                        params.row.timings_ot.map((elem, key) => <Chip label={elem} key={key} className="mb-1" />)
+                    }
+                </div>
+            )
+        },
+        // { field: 'timings_noon', headerName: 'Afternoon', minWidth: 170 },
+        // { field: 'timings_ot', headerName: 'Overtime', minWidth: 170 },
         { type: 'number', field: 'hours_ot', headerName: 'OT Hours' },
         { field: 'locations', headerName: 'Locations' },
         { field: 'status', headerName: 'Status' },
@@ -48,7 +70,7 @@ export default function AttendAddEntry() {
     }
 
     const addToGrid = (elem) => {
-        setAttendance([...attendance, elem]);
+        setAttendance([...attendance, elem].map((e, id) => ({ ...e, id })));
     }
 
     return (
@@ -84,7 +106,7 @@ export default function AttendAddEntry() {
                             rows={attendance}
                             columns={attendColumns}
                             autoHeight
-                            density="compact"
+                            // density="compact"
                             pageSize={attendRows}
                             onPageSizeChange={(newPageSize) => setAttendRows(newPageSize)}
                             rowsPerPageOptions={[5, 10, 30, 50, 100]}
