@@ -90,6 +90,11 @@ export default function Dashboard() {
                         pageSize={attendRows}
                         onPageSizeChange={(newPageSize) => setAttendRows(newPageSize)}
                         rowsPerPageOptions={[5, 10, 30, 50, 100]}
+                        initialState={{
+                            sorting: {
+                                sortModel: [{ field: 'date', sort: 'desc' }],
+                            },
+                        }}
                         // checkboxSelection
                         pagination
                     />

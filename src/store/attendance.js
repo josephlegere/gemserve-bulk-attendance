@@ -25,7 +25,7 @@ const format_attendance = (data) => {
             return { hrs, time }
         }, { hrs: 0, time: [] });
 
-        const locations = timings.map(({ location }) => location).filter(e => e !== '').join(', ');
+        const locations = timings.map(({ location }) => location).filter((e, pos, arr) => e !== '' && (!pos || e != arr[pos - 1])).join(', ');
 
         return ({ id, employeeid: employee.employeeid, employee: employee.employeename, date, timings_day, timings_noon, timings_ot: timings_ot.time, hours_ot: timings_ot.hrs > requiredHours ? timings_ot.hrs - requiredHours : 0, locations, status: (timings_ot.hrs > requiredHours ? 'OT' : timings_ot.hrs < requiredHours ? 'INC' : 'REG') });
     })
@@ -34,18 +34,50 @@ const format_attendance = (data) => {
 }
 
 export const get = async () => {
-    let _attendance = localStorage.getItem('attendance');
+    // let _attendance = localStorage.getItem('attendance');
+    // format_attendance(JSON.parse(_attendance))
 
-    return _attendance ? format_attendance(JSON.parse(_attendance)) : [];
+    const { data } = await axios.post(process.env.ATTENDANCE_GET, {
+        dskEntry: 1,
+        dt: "today"
+    });
+
+    console.log(data);
+    const _formatted = format_attendance(
+    Object.values(
+        data.attendance_list.filter(e => e !== 'manual').reduce((accum, curr) => {
+            (accum[`${curr.attendempcode}_${curr.attenddate}`] = accum[`${curr.attendempcode}_${curr.attenddate}`] || []).push(curr);
+            return accum;
+        }, {})
+    )
+    .map((elem) => {
+        const { attendempcode, attenddate, attendemployee, attendstatus } = elem[0];
+
+        return ({ employee: { employeeid: attendempcode, employeename: attendemployee }, date: moment(attenddate, 'YYYY-MM-DD HH:mm:ss.SS').format('YYYY-MM-DD'), timings_raw: elem.map(({ attendin, attendout, attendplace }) => ({ in: attendin, out: attendout, location: attendplace, tags: [moment(attendin, 'HH:mm:ss.SS').isBefore(moment('12:00:00', 'HH:mm:ss')) ? 'Morning' : 'Afternoon'] })) });
+    }));
+
+    console.log(_formatted);
+
+    return _formatted;
 }
 
 export const insert = async (props) => {
     const attendance = props;
+
+    // console.log(attendance.reduce((accum, { employeeid, date, timings_raw }) => [...accum, ...timings_raw.map((({ in: in_time, out, location }) => ({ empcode: employeeid, date, in: in_time, out, place: location })))], []));
+
+    const { data } = await axios.post(process.env.ATTENDANCE_INS, {
+        dskEntry: 1,
+        attendance: attendance.reduce((accum, { employeeid, date, timings_raw }) => [...accum, ...timings_raw.map((({ in: in_time, out, location }) => ({ empcode: employeeid, date, in: in_time, out, place: location })))], [])
+    });
+
+    console.log(data);
+
     let _attendance = localStorage.getItem('attendance');
 
     if (_attendance) _attendance = JSON.parse(_attendance);
 
     localStorage.setItem('attendance', JSON.stringify([...(_attendance || []), ...attendance.map(({ created, date, employeeid, employee, timings_raw, timings_store }) => ({ created, date, employee: { employeeid, employeename: employee }, timings: timings_store, timings_raw }))]));
 
-    return attendance.map(({ date, employeeid, employee, timings_day, timings_noon, timings_ot, hours_ot, locations, status }) => ({ id: Date.now(), date, employeeid, employee, timings_day, timings_noon, timings_ot, hours_ot, locations, status }));
+    return attendance.map(({ date, employeeid, employee, timings_day, timings_noon, timings_ot, hours_ot, locations, status }, key) => ({ id: `${Date.now()}_${key}`, date, employeeid, employee, timings_day, timings_noon, timings_ot, hours_ot, locations, status }));
 }
