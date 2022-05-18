@@ -1,6 +1,6 @@
 import React, { forwardRef, useEffect, useState } from 'react';
 
-import { AppBar, Button, CircularProgress, Chip, Dialog, Grid, IconButton, Slide, Toolbar, Typography } from '@mui/material';
+import { AppBar, Button, CircularProgress, Chip, Dialog, Grid, IconButton, Slide, Stack, Toolbar, Typography } from '@mui/material';
 import { Close as CloseIcon } from '@mui/icons-material';
 import { DataGrid, GridToolbar } from '@mui/x-data-grid';
 import { useMutation, useQueryClient } from 'react-query';
@@ -25,6 +25,7 @@ export default function AttendAddEntry() {
 
     const [attendRows, setAttendRows] = useState(30);
     const [attendance, setAttendance] = useState([]);
+    const [selections, setSelections] = useState([]);
     const [toggleForm, setToggleForm] = useState(false);
 
     const attendColumns = [
@@ -85,8 +86,16 @@ export default function AttendAddEntry() {
     }
 
     const addToGrid = (elem) => {
-        setAttendance([...attendance, elem].map((e, id) => ({ ...e, id })));
+        setAttendance([...attendance, elem].map((e, id) => ({ ...e, id: id })));
     }
+
+    const deleteFromGrid = () => {
+        setAttendance(attendance.filter(e => !selections.includes(e.id)).map((e, id) => ({ ...e, id })));
+        setSelections([]);
+    }
+
+    // useEffect(() => console.log('selections', selections), [selections]);
+    // useEffect(() => console.log('attendance', attendance), [attendance]);
 
     return (
         <>
@@ -117,6 +126,16 @@ export default function AttendAddEntry() {
                 </AppBar>
                 <Grid container justifyContent="center" spacing={2} style={{ marginTop: 10, marginBottom: 10 }}>
                     <Grid item xs={10}>
+                        <Stack
+                            sx={{ width: '100%', mb: 1 }}
+                            direction="row"
+                            alignItems="flex-start"
+                            columnGap={1}
+                        >
+                            <Button size="small" onClick={deleteFromGrid}>
+                                Delete
+                            </Button>
+                        </Stack>
                         <DataGrid
                             rows={attendance}
                             columns={attendColumns}
@@ -126,6 +145,10 @@ export default function AttendAddEntry() {
                             onPageSizeChange={(newPageSize) => setAttendRows(newPageSize)}
                             rowsPerPageOptions={[5, 10, 30, 50, 100]}
                             checkboxSelection
+                            onSelectionModelChange={(newSelectionModel) => {
+                                setSelections(newSelectionModel);
+                            }}
+                            selectionModel={selections}
                             pagination
                         />
                     </Grid>

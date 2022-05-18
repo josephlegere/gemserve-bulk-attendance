@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react'
 
-import { Box, Button, Container, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, Fab, FormControl, IconButton, InputLabel, Menu, MenuItem, Select, TextField, Typography } from '@mui/material';
+import { Box, Button, Container, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, Fab, FormControl, FormHelperText, IconButton, InputLabel, Menu, MenuItem, Select, TextField, Typography } from '@mui/material';
 import { Add as AddIcon, Close as CloseIcon } from '@mui/icons-material';
 import { DatePicker, TimePicker } from '@mui/x-date-pickers';
 import moment from 'moment';
@@ -63,6 +63,7 @@ export default function AttendAddForm(props) {
     const [employeeData, setEmployeeData] = useState([]);
     const [date, setDate] = useState(moment());
     const [employee, setEmployee] = useState({});
+    const [errors, setErrors] = useState(false);
     const [timings, setTimings] = useState([
         { in: '05:30:00', out: '12:00:00', location: '', tags: ['Morning'] },
         { in: '16:00:00', out: '17:30:00', location: '', tags: ['Afternoon'] }
@@ -78,9 +79,15 @@ export default function AttendAddForm(props) {
             { in: '05:30:00', out: '12:00:00', location: '', tags: ['Morning'] },
             { in: '16:00:00', out: '17:30:00', location: '', tags: ['Afternoon'] }
         ]);
+        setErrors(false);
     }
 
     const submitForm = () => {
+        if (Object.keys(employee).length <= 0) {
+            setErrors(true);
+            return;
+        }
+
         console.log('timings', timings);
         const timings_day = timings.filter(tm => tm.tags.includes('Morning')).map(tm => `${moment(tm.in, 'HH:mm:ss').format('h:mma')} - ${moment(tm.out, 'HH:mm:ss').format('h:mma')}`)
         const timings_noon = timings.filter(tm => tm.tags.includes('Afternoon')).map(tm => `${moment(tm.in, 'HH:mm:ss').format('h:mma')} - ${moment(tm.out, 'HH:mm:ss').format('h:mma')}`)
@@ -209,7 +216,7 @@ export default function AttendAddForm(props) {
                         maxDate={moment().add(1, 'd')}
                         minDate={moment().subtract(2, 'M')}
                     />
-                    <FormControl fullWidth size="small" className="my-2">
+                    <FormControl fullWidth size="small" className="my-2" error={errors && Object.keys(employee).length <= 0}>
                         <InputLabel id="employees-select-label">Employee</InputLabel>
                         <Select
                             labelId="employees-select-label"
@@ -224,6 +231,7 @@ export default function AttendAddForm(props) {
                                 ))
                             }
                         </Select>
+                        {errors && Object.keys(employee).length <= 0 ? <FormHelperText>Need to add an Employee!</FormHelperText> : ''}
                     </FormControl>
 
                     <div className="flex flex-row justify-between items-start mb-2">
