@@ -1,6 +1,7 @@
 import React, { forwardRef, useEffect, useState } from 'react';
 
 import { AppBar, Button, CircularProgress, Chip, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, FormControlLabel, FormGroup, Grid, IconButton, Slide, TextField, Toolbar, Typography } from '@mui/material';
+import { Refresh as RefreshIcon } from '@mui/icons-material';
 import { DataGrid, GridToolbar } from '@mui/x-data-grid';
 import moment from 'moment';
 import { useQuery } from 'react-query';
@@ -10,7 +11,9 @@ import AttendAddEntry from '../components/AttendAddEntry';
 
 export default function Dashboard() {
 
-    const { isLoading, error, data } = useQuery('getAttendance', getAttendance);
+    const { isLoading, error, data, refetch } = useQuery('getAttendance', getAttendance, {
+        enabled: false
+    });
 
     const [attendRows, setAttendRows] = useState(30);
     const [attendance, setAttendance] = useState([]);
@@ -58,6 +61,10 @@ export default function Dashboard() {
     ];
 
     useEffect(() => {
+        refetch();
+    }, []);
+
+    useEffect(() => {
         if (data) {
             setAttendance(data);
         }
@@ -77,7 +84,12 @@ export default function Dashboard() {
                         >
                             Gemserve Bulk Attendance
                         </Typography>
-                        <AttendAddEntry />
+                        <div className="flex flex-row items-center">
+                            <Button variant="contained" endIcon={<RefreshIcon />} onClick={() => refetch()} style={{ marginRight: 10 }}>
+                                Refresh
+                            </Button>
+                            <AttendAddEntry />
+                        </div>
                     </div>
                     <DataGrid
                         rows={attendance}
@@ -86,7 +98,7 @@ export default function Dashboard() {
                         components={{
                             Toolbar: GridToolbar,
                         }}
-                        density="compact"
+                        // density="compact"
                         pageSize={attendRows}
                         onPageSizeChange={(newPageSize) => setAttendRows(newPageSize)}
                         rowsPerPageOptions={[5, 10, 30, 50, 100]}

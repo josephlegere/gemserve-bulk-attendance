@@ -79,8 +79,10 @@ export default function AttendAddEntry() {
 
     const submitForm = async () => {
         const _attendance = await addAttendance.mutateAsync(attendance);
-        queryClient.setQueriesData('getAttendance', _attendance);
         console.log(_attendance);
+
+        // If a function is passed in the 2nd arg, it will receive the old data value and be expected to return a new one.
+        queryClient.setQueriesData('getAttendance', prev => [...prev, ..._attendance]);
 
         closeForm();
     }

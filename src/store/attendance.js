@@ -39,6 +39,7 @@ export const get = async () => {
 
     const { data } = await axios.post(process.env.ATTENDANCE_GET, {
         dskEntry: 1,
+        st: 'logged in',
         dt: "today"
     });
 
