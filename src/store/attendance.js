@@ -34,8 +34,9 @@ const format_attendance = (data) => {
 }
 
 export const get = async () => {
-    // let _attendance = localStorage.getItem('attendance');
-    // format_attendance(JSON.parse(_attendance))
+    // localStorage is just for reference to compare data between local and server
+    let _attendance = localStorage.getItem('attendance');
+    localStorage.setItem('attendance', JSON.stringify(JSON.parse(_attendance).filter(({ created }) => moment(created).isAfter(moment().subtract(4, 'd')))));
 
     const { data } = await axios.post(process.env.ATTENDANCE_GET, {
         dskEntry: 1,
@@ -78,7 +79,7 @@ export const insert = async (props) => {
 
     if (_attendance) _attendance = JSON.parse(_attendance);
 
-    localStorage.setItem('attendance', JSON.stringify([...(_attendance || []), ...attendance.map(({ created, date, employeeid, employee, timings_raw, timings_store }) => ({ created, date, employee: { employeeid, employeename: employee }, timings: timings_store, timings_raw }))]));
+    localStorage.setItem('attendance', JSON.stringify([...(_attendance || []), ...attendance.map(({ created, date, employeeid, employee, timings_raw, timings_store }) => ({ created, date, employee: { employeeid, employeename: employee }, timings: timings_store, timings_raw }))].filter(({ created }) => moment(created).isAfter(moment().subtract(4, 'd')))));
 
     return attendance.map(({ date, employeeid, employee, timings_day, timings_noon, timings_ot, hours_ot, locations, status }, key) => ({ id: `${Date.now()}_${key}`, date, employeeid, employee, timings_day, timings_noon, timings_ot, hours_ot, locations, status }));
 }

@@ -182,6 +182,22 @@ export default function AttendAddForm(props) {
         });
     }
 
+    const hoursTotal = () => {
+        return timings.reduce((accumulator, current) => {
+            return accumulator + (moment(current.out, 'HH:mm:ss').diff(moment(current.in, 'HH:mm:ss'), 'hours', true));
+        }, 0);
+    }
+
+    const adjustedHours = () => { // This includes weekends and holidays
+        // if (tenant.daysoff.some(_day => parseInt(_day.num) === moment(date).day())) return 0;
+        // else if (specialDates[moment(date).format('YYYYMMDD')]) {
+        //     let { type, hours } = specialDates[moment(date).format('YYYYMMDD')];
+        //     if (type === 'holiday') return 0;
+        //     if (type === 'specialtiming') return hours;
+        // }
+        return requiredHours;
+    }
+
     useEffect(() => {
         console.log(data);
         if (data) {
@@ -234,16 +250,25 @@ export default function AttendAddForm(props) {
                         {errors && Object.keys(employee).length <= 0 ? <FormHelperText>Need to add an Employee!</FormHelperText> : ''}
                     </FormControl>
 
-                    <div className="flex flex-row justify-between items-start mb-2">
-                        <Typography
-                            variant="body1"
-                            noWrap
-                            component="div"
-                            className="mt-2"
-                            // sx={{ mr: 2, mb: 2 }}
-                        >
-                            Timings
-                        </Typography>
+                    <div className="flex flex-row justify-between items-start my-2">
+                        <div className="flex flex-row">
+                            <Typography
+                                variant="body1"
+                                noWrap
+                                component="div"
+                                // sx={{ mr: 2, mb: 2 }}
+                            >
+                                Timings -
+                            </Typography>
+                            <Typography
+                                variant="body1"
+                                noWrap
+                                component="div"
+                                sx={{ marginLeft: 1, fontWeight: 700, color: hoursTotal() > adjustedHours() ? 'blue' : hoursTotal() < adjustedHours() ? 'red' : 'green' }}
+                            >
+                                {hoursTotal() > adjustedHours() ? 'Overtime' : hoursTotal() < adjustedHours() ? 'Incomplete' : 'Regular'} {hoursTotal() > adjustedHours() ? ` | Hrs: ${hoursTotal()}` : ''}
+                            </Typography>
+                        </div>
                         <Button onClick={addTimeInSet} variant="outlined">Add</Button>
                     </div>
                     {
