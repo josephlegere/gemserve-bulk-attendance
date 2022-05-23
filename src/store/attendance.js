@@ -36,7 +36,7 @@ const format_attendance = (data) => {
 export const get = async () => {
     // localStorage is just for reference to compare data between local and server
     let _attendance = localStorage.getItem('attendance');
-    localStorage.setItem('attendance', JSON.stringify(JSON.parse(_attendance).filter(({ created }) => moment(created).isAfter(moment().subtract(4, 'd')))));
+    if (_attendance) localStorage.setItem('attendance', JSON.stringify(JSON.parse(_attendance).filter(({ created }) => moment(created).isAfter(moment().subtract(4, 'd')))));
 
     const { data } = await axios.post(process.env.ATTENDANCE_GET, {
         dskEntry: 1,

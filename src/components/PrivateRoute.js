@@ -11,6 +11,7 @@ import { Router } from "@reach/router";
 const PrivateRoute = ({ component: Component, ...rest }) => {
 
     const { children } = rest;
+    // console.log(Component.name);
     // const [user, loading, error] = useAuthState(auth);
     // const { dispatch } = store;
     // const [initializing, setInitializing] = useState(true);

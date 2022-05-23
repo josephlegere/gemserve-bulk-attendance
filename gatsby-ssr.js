@@ -1,1 +1,1 @@
-export { default as wrapRootElement } from './src/layouts/root';
+export { default as wrapRootElement } from './src/components/layouts/wrapper';

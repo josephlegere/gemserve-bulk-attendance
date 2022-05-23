@@ -8,8 +8,12 @@ import { useQuery } from 'react-query';
 
 import { get as getAttendance } from '../store/attendance';
 import AttendAddEntry from '../components/AttendAddEntry';
+import DefaultLayout from '../components/layouts/default';
 
-export default function Dashboard() {
+export default function Dashboard(props) {
+
+    const { location } = props;
+    const { search } = location;
 
     const { isLoading, error, data, refetch } = useQuery('getAttendance', getAttendance, {
         enabled: false
@@ -72,46 +76,48 @@ export default function Dashboard() {
     }, [data]);
 
     return (
-        <>
-            <Grid container justifyContent="center" spacing={2} style={{ marginTop: 10, marginBottom: 10 }}>
-                <Grid item xs={10}>
-                    <div className="flex flex-row justify-between items-center mb-2">
-                        <Typography
-                            variant="h6"
-                            noWrap
-                            component="div"
-                            // sx={{ mr: 2, mb: 2 }}
-                        >
-                            Gemserve Bulk Attendance
-                        </Typography>
-                        <div className="flex flex-row items-center">
-                            <Button variant="contained" endIcon={<RefreshIcon />} onClick={() => refetch()} style={{ marginRight: 10 }}>
-                                Refresh
-                            </Button>
-                            <AttendAddEntry />
+        <DefaultLayout {...props} isStandalone={search.search('subpage') < 0}>
+            <>
+                <Grid container justifyContent="center" spacing={2} style={{ marginTop: 10, marginBottom: 10 }}>
+                    <Grid item xs={10}>
+                        <div className="flex flex-row justify-between items-center mb-2">
+                            <Typography
+                                variant="h6"
+                                noWrap
+                                component="div"
+                                // sx={{ mr: 2, mb: 2 }}
+                            >
+                                Gemserve Bulk Attendance
+                            </Typography>
+                            <div className="flex flex-row items-center">
+                                <Button variant="contained" endIcon={<RefreshIcon />} onClick={() => refetch()} style={{ marginRight: 10 }}>
+                                    Refresh
+                                </Button>
+                                <AttendAddEntry />
+                            </div>
                         </div>
-                    </div>
-                    <DataGrid
-                        rows={attendance}
-                        columns={attendColumns}
-                        autoHeight
-                        components={{
-                            Toolbar: GridToolbar,
-                        }}
-                        // density="compact"
-                        pageSize={attendRows}
-                        onPageSizeChange={(newPageSize) => setAttendRows(newPageSize)}
-                        rowsPerPageOptions={[5, 10, 30, 50, 100]}
-                        initialState={{
-                            sorting: {
-                                sortModel: [{ field: 'date', sort: 'desc' }],
-                            },
-                        }}
-                        // checkboxSelection
-                        pagination
-                    />
+                        <DataGrid
+                            rows={attendance}
+                            columns={attendColumns}
+                            autoHeight
+                            components={{
+                                Toolbar: GridToolbar,
+                            }}
+                            // density="compact"
+                            pageSize={attendRows}
+                            onPageSizeChange={(newPageSize) => setAttendRows(newPageSize)}
+                            rowsPerPageOptions={[5, 10, 30, 50, 100]}
+                            initialState={{
+                                sorting: {
+                                    sortModel: [{ field: 'date', sort: 'desc' }],
+                                },
+                            }}
+                            // checkboxSelection
+                            pagination
+                        />
+                    </Grid>
                 </Grid>
-            </Grid>
-        </>
+            </>
+        </DefaultLayout>
     )
 }
